@@ -15,7 +15,6 @@ router.post("/register", async (req, res) => {
     try {
 
         const preuser = await users.findOne({email : email})
-        console.log(preuser)
 
         if(preuser){
             res.status(403).json("this is user is already exist")
@@ -25,7 +24,7 @@ router.post("/register", async (req, res) => {
             });
             await adduser.save();
             res.status(201).json(adduser)
-            console.log(adduser)
+           
         }
 
     } catch (error) {
@@ -98,5 +97,31 @@ router.patch("/updateuser/:id", async(req,res)=>{
             res.status(422).json("user not delete")
         }
     })
+
+// search
+    
+// Search API
+router.get('/search', async (req, res) => {
+    const { query } = req.query;
+  
+    try {
+      const regex = new RegExp(query, 'i'); // Case-insensitive regex
+  
+      const results = await users.find({
+        $or: [
+          { name: regex },
+          { work: regex },
+          { email: regex },
+          { desc: regex },
+          // Optionally include other fields
+          { add: regex },
+        ],
+      });
+  
+      res.json(results);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  });
 
 module.exports = router
